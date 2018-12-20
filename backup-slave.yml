@@ -1,0 +1,6 @@
+---
+
+  - hosts: backup-slave
+
+    roles:
+      - rsync

@@ -1,0 +1,3 @@
+---
+  - include: backup-master.yml
+  - include: backup-slave.yml
