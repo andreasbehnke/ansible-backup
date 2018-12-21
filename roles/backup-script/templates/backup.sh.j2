@@ -1,0 +1,5 @@
+{% for host in groups['backup-slave'] %}
+{% for source in hostvars[host]['backup_sources'] %}
+TODO: write rsync command!  {{ source.path }}
+{% endfor %}
+{% endfor %}

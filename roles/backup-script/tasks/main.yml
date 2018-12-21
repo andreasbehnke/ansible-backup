@@ -1,0 +1,8 @@
+---
+
+  - name: ensure backup script directory
+    become: yes
+    file: path=/opt/backup state=directory
+  - name: write backup script for all slave hosts
+    become: yes
+    template: src=backup.sh.j2 dest=/opt/backup/backup.sh
