@@ -8,3 +8,4 @@
       append: yes
     with_items:
       - '{{ backup_sources }}'
+    when: item.group is defined
