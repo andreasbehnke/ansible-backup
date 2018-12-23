@@ -4,3 +4,4 @@
 
     roles:
       - rsync
+      - backup-user

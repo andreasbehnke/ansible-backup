@@ -1,0 +1,10 @@
+---
+
+  - name: add backup user to groups
+    become: yes
+    user:
+      name: '{{ item.user }}'
+      groups: '{{ item.group }}'
+      append: yes
+    with_items:
+      - '{{ backup_sources }}'
