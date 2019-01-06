@@ -6,3 +6,6 @@
   - name: write backup script for all slave hosts
     become: yes
     template: src=backup.sh.j2 dest=/opt/backup/backup.sh mode='0755'
+  - name: ensure backup log directory
+    become: yes
+    file: path=/var/log/backup state=directory owner='{{ backup_user }}' group='{{ backup_group }}'
