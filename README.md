@@ -17,3 +17,21 @@ This backup scenario is usefull for regular server backup using inexpensive USB 
 The ansible playbook supports another goup named backup_target. A backup target is an accessible host on your network, which receives files from different devices. Each devices public ssh key is stored at backup target and the SSH connection is secured by using rrsync script as shell.
 
 This backup scenario is usefull to backup (mobile) clients using rsync.
+
+# Variables
+
+## Backup Slave
+
+* backup_sources: dictionary of backup source -->
+    * path: absolute path to files which should be synced
+    * rsync_opts: additional rsync options
+    * user: SSH user using for connecting to slave
+    * group: Group connecting user should be part of, required for file access
+
+## Backup Master
+
+* backup_device:
+    * path: absolute base path of mounted disk
+    * mount: name of the systemd mount when device has been mounted
+* backup_user: user performing backup
+* backup_group: users primary group
