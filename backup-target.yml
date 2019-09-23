@@ -1,0 +1,7 @@
+---
+
+  - hosts: backup-target
+
+    roles:
+      - rsync
+      - target-user
