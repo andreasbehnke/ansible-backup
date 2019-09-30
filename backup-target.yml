@@ -4,4 +4,4 @@
 
     roles:
       - rsync
-      - target-user
+      - backup-target
