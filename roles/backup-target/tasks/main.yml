@@ -11,6 +11,7 @@
       path: "{{backup_target_keys_path}}"
       mode: "0600"
       owner: "{{backup_target_user}}"
+      group: "{{backup_target_user}}"
       state: "directory"
 
   - name: collect private key file names
@@ -23,9 +24,9 @@
       backup_target_key_files: "{{backup_target_key_files}} + [ '{{ item }}.pub' ]"
     with_items: "{{ backup_target_access_authorized_users }}"
 
-  - name: collect dropbear key file names
+  - name: collect private dropbear key file names
     set_fact:
-      backup_target_key_files: "{{backup_target_key_files}} + [ '{{ item }}.dropbear.pub' ]"
+      backup_target_key_files: "{{backup_target_key_files}} + [ '{{ item }}_dropbear' ]"
     with_items: "{{ backup_target_access_authorized_users }}"
   
   - name: collect list of key files
@@ -35,9 +36,35 @@
   
   - name: delete outdated key files not in list
     become: yes
-    file: path="{{ backup_target_keys_path }}/{{ item }}" state=absent
+    file: 
+      path: "{{ backup_target_keys_path }}/{{ item }}" 
+      state: absent
     with_items: "{{ backup_target_existing_key_files.stdout_lines }}"
     when: item not in backup_target_key_files
+
+  - name: generate private public key pair (use PEM format which is compatible with dropbearconvert)
+    shell: 'ssh-keygen -t rsa -m PEM -q -N "" -f {{ backup_target_keys_path }}/{{ item }}'
+    with_items: "{{ backup_target_access_authorized_users }}"
+    when: item not in backup_target_existing_key_files.stdout_lines
+
+  - name: install dropbear package to install dropbear converter
+    become: yes
+    apt:
+      name: "dropbear-bin" 
+      state: "present"
+
+  - name: convert private keys to dropbear keys
+    shell: "{{ backup_target_dropbearconvert }} openssh dropbear {{backup_target_keys_path}}/{{item}} {{backup_target_keys_path}}/{{item}}_dropbear"
+    with_items: "{{ backup_target_access_authorized_users }}"
+    when: item not in backup_target_existing_key_files.stdout_lines
+
+  - name: ensure owner and group of generated key files
+    file:
+      path: "{{backup_target_keys_path}}"
+      recurse: yes
+      owner: "{{backup_target_user}}"
+      group: "{{backup_target_user}}"
+      state: "directory"
 
  # - name: install dopbear bin package to get dropbearconvert command
  #   become: yes
