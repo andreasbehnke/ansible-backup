@@ -5,4 +5,4 @@
       path: "{{backup_target_target_path}}"
       state: "directory"
       owner: "{{backup_target_user}}"
-      group: "{{backup_target_user}}"
+      group: "{{backup_target_group}}"

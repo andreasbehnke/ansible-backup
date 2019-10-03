@@ -3,34 +3,39 @@
     become: yes
     user: 
       name: "{{backup_target_user}}"
-      group: "{{backup_target_user}}"
+      groups: "{{backup_target_group}},users"
       home: "{{backup_target_user_home}}"
       shell: "/bin/bash"
 
   - name: ensure directory containing key files for mobile clients
+    become: yes
     file:
       path: "{{backup_target_keys_path}}"
-      mode: "0600"
+      mode: "0700"
       owner: "{{backup_target_user}}"
       group: "{{backup_target_user}}"
       state: "directory"
 
   - name: collect private key file names
+    become: yes
     set_fact:
       backup_target_key_files: "{{backup_target_key_files}} + [ '{{ item }}' ]"
     with_items: "{{ backup_target_access_authorized_users }}"
 
   - name: collect public key file names
+    become: yes
     set_fact:
       backup_target_key_files: "{{backup_target_key_files}} + [ '{{ item }}.pub' ]"
     with_items: "{{ backup_target_access_authorized_users }}"
 
   - name: collect private dropbear key file names
+    become: yes
     set_fact:
       backup_target_key_files: "{{backup_target_key_files}} + [ '{{ item }}_dropbear' ]"
     with_items: "{{ backup_target_access_authorized_users }}"
   
   - name: collect list of key files
+    become: yes
     shell: "ls -1 {{backup_target_keys_path}}"
     register: backup_target_existing_key_files
     changed_when: False
@@ -44,6 +49,7 @@
     when: item not in backup_target_key_files
 
   - name: generate private public key pair (use PEM format which is compatible with dropbearconvert)
+    become: yes
     shell: 'ssh-keygen -t rsa -m PEM -q -N "" -C "{{ item }}" -f {{ backup_target_keys_path }}/{{ item }}'
     with_items: "{{ backup_target_access_authorized_users }}"
     when: item not in backup_target_existing_key_files.stdout_lines
@@ -55,11 +61,13 @@
       state: "present"
 
   - name: convert private keys to dropbear keys
+    become: yes
     shell: "{{ backup_target_dropbearconvert }} openssh dropbear {{backup_target_keys_path}}/{{item}} {{backup_target_keys_path}}/{{item}}_dropbear"
     with_items: "{{ backup_target_access_authorized_users }}"
     when: item not in backup_target_existing_key_files.stdout_lines
 
   - name: ensure owner and group of generated key files
+    become: yes
     file:
       path: "{{backup_target_keys_path}}"
       recurse: yes
@@ -68,12 +76,14 @@
       state: "directory"
 
   - name: drop authorized keys
+    become: yes
     file:
       path: "{{backup_target_authorized_keys}}"
       state: "absent"
     changed_when: False
 
   - name: ensure .ssh directory
+    become: yes
     file:
       path: "{{backup_target_ssh_path}}"
       mode: "0700"
@@ -82,12 +92,14 @@
       state: "directory"
 
   - name: create authorized keys
+    become: yes
     shell: "cat {{backup_target_keys_path}}/{{ item }}.pub >> {{backup_target_authorized_keys}}"
     with_items: "{{ backup_target_access_authorized_users }}"
     changed_when: False
 
   # TODO: usage of rrsync for secure connection.
   - name: set authorized keys file attributes
+    become: yes
     file:
       path: "{{backup_target_authorized_keys}}"
       owner: "{{backup_target_user}}"
