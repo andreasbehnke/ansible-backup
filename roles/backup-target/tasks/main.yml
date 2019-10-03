@@ -43,7 +43,7 @@
     when: item not in backup_target_key_files
 
   - name: generate private public key pair (use PEM format which is compatible with dropbearconvert)
-    shell: 'ssh-keygen -t rsa -m PEM -q -N "" -f {{ backup_target_keys_path }}/{{ item }}'
+    shell: 'ssh-keygen -t rsa -m PEM -q -N "" -C "{{ item }}" -f {{ backup_target_keys_path }}/{{ item }}'
     with_items: "{{ backup_target_access_authorized_users }}"
     when: item not in backup_target_existing_key_files.stdout_lines
 
@@ -66,23 +66,30 @@
       group: "{{backup_target_user}}"
       state: "directory"
 
-  - name: create list of public key file names
-    set_fact:
-      backup_target_public_key_files: "{{backup_target_public_key_files}} + [ '{{backup_target_keys_path}}/{{ item }}.pub' ]"
+  - name: drop authorized keys
+    file:
+      path: "{{backup_target_authorized_keys}}"
+      state: "absent"
+    changed_when: False
+
+  - name: ensure .ssh directory
+    file:
+      path: "{{backup_target_ssh_path}}"
+      mode: "0700"
+      owner: "{{backup_target_user}}"
+      group: "{{backup_target_user}}"
+      state: "directory"
+
+  - name: create authorized keys
+    shell: "cat {{backup_target_keys_path}}/{{ item }}.pub >> {{backup_target_authorized_keys}}"
     with_items: "{{ backup_target_access_authorized_users }}"
+    changed_when: False
 
-  - name: create authorized keys file
-    authorized_key:
-    with_files: "{{ backup_target_authorized_key_files }}"
-
- # - name: install dopbear bin package to get dropbearconvert command
- #   become: yes
- #   apt: name=dropbear-bin state=present
-#
-
-#  - name: add authorized keys
-#    become: yes
-#    authorized_key: user=backup key="{{ lookup('file', '{{ remote_access_authorized_keys_prefix }}/{{ item }}.pub') }}"
-#    with_items: "{{ backup_target_access_authorized_users }}"
-
-# TODO: usage of rrsync for secure connection.
+  # TODO: usage of rrsync for secure connection.
+  - name: set authorized keys file attributes
+    file:
+      path: "{{backup_target_authorized_keys}}"
+      owner: "{{backup_target_user}}"
+      group: "{{backup_target_user}}"
+      mode: "0600"
+    changed_when: False
