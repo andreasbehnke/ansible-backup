@@ -66,6 +66,15 @@
       group: "{{backup_target_user}}"
       state: "directory"
 
+  - name: create list of public key file names
+    set_fact:
+      backup_target_public_key_files: "{{backup_target_public_key_files}} + [ '{{backup_target_keys_path}}/{{ item }}.pub' ]"
+    with_items: "{{ backup_target_access_authorized_users }}"
+
+  - name: create authorized keys file
+    authorized_key:
+    with_files: "{{ backup_target_authorized_key_files }}"
+
  # - name: install dopbear bin package to get dropbearconvert command
  #   become: yes
  #   apt: name=dropbear-bin state=present

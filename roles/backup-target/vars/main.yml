@@ -1,6 +1,7 @@
 ---
 
   backup_target_key_files: []
+  backup_target_public_key_files: []
   backup_target_user: "backup"
   backup_target_user_home: "/home/{{backup_target_user}}"
   backup_target_keys_path: "{{backup_target_user_home}}/keys"
