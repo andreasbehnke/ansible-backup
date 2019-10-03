@@ -7,6 +7,7 @@
   backup_target_keys_path: "{{backup_target_user_home}}/keys"
   backup_target_ssh_path: "{{backup_target_user_home}}/.ssh"
   backup_target_authorized_keys: "{{backup_target_user_home}}/.ssh/authorized_keys"
+  backup_target_target_path: "/srv/backup"
 
   # fix for buggy dropbear package does not create correct symlink to this binary 
   backup_target_dropbearconvert: "/usr/lib/dropbear/dropbearconvert"
