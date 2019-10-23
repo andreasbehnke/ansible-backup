@@ -1,4 +1,0 @@
----
-
-  # fix for buggy dropbear package does not create correct symlink to this binary 
-  backup_target_dropbearconvert: "/usr/lib/dropbear/dropbearconvert"

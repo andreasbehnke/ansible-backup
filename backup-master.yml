@@ -3,6 +3,4 @@
   - hosts: backup-master
 
     roles:
-      - rsync
-      - backup-script
-      - backup-service
+      - backup-master

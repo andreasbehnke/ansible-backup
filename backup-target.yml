@@ -3,5 +3,4 @@
   - hosts: backup-target
 
     roles:
-      - rsync
       - backup-target

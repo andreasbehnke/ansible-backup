@@ -3,5 +3,4 @@
   - hosts: backup-slave
 
     roles:
-      - rsync
-      - add-backup-user-to-group
+      - backup-slave
